@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Abysm</title>
+    <title>project abysm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 0 L100 38 L82 100 L18 100 L0 38 Z' fill='%23fff'/></svg>" type="image/svg+xml">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&display=swap');
+
         :root {
             --bg: #000;
             --fg: #fff;
             --accent: #aaa;
-            --hit: #ddd;
-            --special: #f55;
-            --timer-warn: #f90;
-            --timer-danger: #f00;
-            --achieve: #0f0;
+            --hit: #ccc;
+            --special: #bbb;
+            --timer-warn: #aaa;
+            --timer-danger: #999;
         }
         * {
             box-sizing: border-box;
@@ -22,7 +23,7 @@
             padding: 0;
         }
         body {
-            font-family: monospace;
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
             background: var(--bg);
             color: var(--fg);
             min-height: 100vh;
@@ -37,69 +38,66 @@
         #game {
             width: 100%;
             max-width: 480px;
-            padding: 1.5rem;
-            background: #111;
-            border: 2px solid var(--fg);
+            padding: 2rem 1.5rem;
+            background: rgba(10,10,10,0.95);
+            border-radius: 20px;
             text-align: center;
-            flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         h1 {
             font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
             margin-bottom: 0.5rem;
-            letter-spacing: 0.1em;
-            text-shadow: 0 0 5px var(--fg);
         }
-        #level {
-            font-size: 1rem;
+        #stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            font-weight: 500;
             color: var(--accent);
-            margin-bottom: 0.3rem;
-        }
-        #score {
-            font-size: 1.2rem;
-            margin: 0.5rem 0;
-            font-weight: bold;
+            margin: 0.4rem 0;
         }
         #timer {
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin: 0.5rem 0;
-            min-height: 1.5em;
-            transition: color 0.3s ease;
+            font-size: 1.15rem;
+            font-weight: 500;
+            margin: 0.6rem 0;
+            transition: color 0.4s ease;
         }
         #sequence {
-            font-size: 1.5rem;
-            margin: 1rem 0;
-            letter-spacing: 0.4em;
-            font-weight: bold;
-            min-height: 2em;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin: 1.2rem 0;
+            letter-spacing: 0.3em;
+            min-height: 2.2em;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
-            gap: 0.3em;
-            perspective: 1000px;
+            gap: 0.25em;
         }
         .seq-digit {
-            display: inline-block;
             opacity: 0;
-            transform: translateY(-15px) rotateX(-30deg);
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: scale(0.9);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         .seq-digit.show {
             opacity: 1;
-            transform: translateY(0) rotateX(0);
+            transform: scale(1);
         }
         .seq-digit.active {
             color: var(--hit);
-            transform: scale(1.4) translateY(-5px);
-            text-shadow: 0 0 10px var(--hit);
-            transition: all 0.15s ease;
+            transform: scale(1.12);
+            transition: all 0.2s ease;
+        }
+        .seq-digit.done {
+            color: var(--hit);
+            opacity: 0.7;
         }
         #boss-container {
-            position: relative;
             height: 160px;
             margin: 1.5rem 0;
             display: flex;
@@ -111,44 +109,33 @@
             height: 100px;
             background: var(--fg);
             clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-            position: relative;
-            z-index: 2;
-            filter: drop-shadow(0 0 5px var(--fg));
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.4s ease, opacity 0.4s ease;
         }
         #boss.special {
             background: var(--special);
-            filter: drop-shadow(0 0 15px var(--special));
-            animation: specialGlow 1.5s infinite alternate;
+            animation: specialPulse 2s infinite ease-in-out;
         }
-        @keyframes specialGlow {
-            from { filter: drop-shadow(0 0 10px var(--special)); }
-            to { filter: drop-shadow(0 0 25px var(--special)); }
+        @keyframes specialPulse {
+            0%, 100% { opacity: 0.88; }
+            50% { opacity: 1; }
         }
         #boss.hit {
             background: var(--hit);
-            transform: scale(1.3) rotate(8deg);
-            filter: drop-shadow(0 0 20px var(--hit));
-            animation: hitPulse 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        @keyframes hitPulse {
-            0%, 100% { transform: scale(1.3) rotate(8deg); }
-            50% { transform: scale(1.5) rotate(-8deg); }
+            transform: scale(1.1);
         }
         #boss.dead {
-            background: var(--bg);
-            transform: scale(0) rotate(720deg);
-            filter: none;
+            transform: scale(0) rotate(360deg);
+            opacity: 0;
             transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         .particle {
             position: absolute;
-            width: 5px;
-            height: 5px;
+            width: 4px;
+            height: 4px;
             background: var(--fg);
             border-radius: 50%;
             pointer-events: none;
-            animation: particleBurst 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation: particleBurst 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
         .particle.special {
             background: var(--special);
@@ -166,92 +153,115 @@
             margin: 1rem 0;
         }
         .key {
-            width: 60px;
-            height: 60px;
-            background: var(--fg);
-            color: var(--bg);
+            width: 64px;
+            height: 64px;
+            background: rgba(255,255,255,0.1);
+            color: var(--fg);
             border: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border-radius: 8px;
+            font-size: 1.6rem;
+            font-weight: 600;
+            border-radius: 16px;
             cursor: pointer;
-            transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
-            user-select: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.15s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .key:active,
         .key.pressed {
-            background: var(--accent);
-            transform: scale(0.85) translateY(2px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.25);
+            transform: scale(0.92);
         }
         #info {
-            margin: 1rem 0;
-            font-size: 0.9rem;
-            color: #888;
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 0.6rem;
+            font-weight: 500;
         }
-        button {
-            background: var(--fg);
-            color: var(--bg);
+        #toggle-btn {
+            background: rgba(255,255,255,0.15);
+            color: var(--fg);
             border: none;
-            padding: 0.8rem 1.5rem;
+            padding: 0.8rem 1.6rem;
             font-size: 1rem;
-            font-weight: bold;
-            border-radius: 6px;
+            font-weight: 600;
+            border-radius: 14px;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            margin-top: 0.5rem;
         }
-        button:hover {
-            background: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        #toggle-btn:hover {
+            background: rgba(255,255,255,0.25);
         }
-        #achievements {
+        #modal {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
-            max-width: 200px;
-            background: rgba(17,17,17,0.9);
-            border: 1px solid var(--fg);
-            padding: 0.5rem;
-            font-size: 0.8rem;
-            color: var(--achieve);
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            z-index: 10;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            backdrop-filter: blur(8px);
         }
-        #achievements.show {
-            opacity: 1;
+        #modal-content {
+            background: rgba(10,10,10,0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 80%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        #modal-content h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        #restart-btn {
+            background: rgba(255,255,255,0.15);
+            color: var(--fg);
+            border: none;
+            padding: 0.7rem 1.4rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.2s ease;
+        }
+        #restart-btn:hover {
+            background: rgba(255,255,255,0.25);
         }
         footer {
             margin-top: 1rem;
-            font-size: 0.8rem;
-            opacity: 0.5;
-            transition: opacity 0.3s;
-        }
-        footer:hover {
-            opacity: 0.8;
+            font-size: 0.75rem;
+            color: var(--accent);
+            opacity: 0.6;
         }
         footer a {
             color: inherit;
             text-decoration: none;
         }
         @media (max-width: 480px) {
-            h1 { font-size: 1.5rem; }
-            #sequence { font-size: 1.3rem; letter-spacing: 0.3em; }
-            .key { width: 50px; height: 50px; font-size: 1.3rem; }
+            h1 { font-size: 1.6rem; }
+            #sequence { font-size: 1.4rem; letter-spacing: 0.25em; }
+            .key { width: 56px; height: 56px; font-size: 1.4rem; }
             #boss { width: 80px; height: 80px; }
             #timer { font-size: 1.1rem; }
-            #achievements { max-width: 150px; font-size: 0.7rem; top: 0.5rem; right: 0.5rem; }
+            #game { padding: 1.5rem 1rem; border-radius: 16px; }
         }
     </style>
 </head>
 <body>
     <div id="game">
-        <h1>PROJECT ABYSM</h1>
-        <div id="level">LEVEL 1</div>
-        <div id="score">SCORE: 0</div>
+        <h1>project abysm</h1>
+        <div id="stats">
+            <div id="level">LEVEL 1</div>
+            <div id="score">SCORE: 0</div>
+            <div id="high-score">HIGH: 0</div>
+        </div>
         <div id="timer"></div>
         <div id="sequence"></div>
         <div id="boss-container">
@@ -262,179 +272,180 @@
             <button class="key" data-key="2">2</button>
             <button class="key" data-key="3">3</button>
         </div>
-        <div id="info">TAP KEYS OR PRESS 1·2·3</div>
-        <button id="start-btn">START</button>
+        <div id="info">TAP OR PRESS 1·2·3</div>
+        <button id="toggle-btn">START</button>
     </div>
-    <div id="achievements"></div>
+    <div id="modal">
+        <div id="modal-content">
+            <h2>END</h2>
+            <p id="final-score"></p>
+            <button id="restart-btn">RETRY</button>
+        </div>
+    </div>
     <footer>
-        <a href="https://github.com/unharne" target="_blank">powered by unharne</a>
+        <a href="https://github.com/unharne" target="_blank">by unharne</a>
     </footer>
 
     <script>
-        const seqDisplay = document.getElementById('sequence');
-        const boss = document.getElementById('boss');
-        const scoreEl = document.getElementById('score');
-        const levelEl = document.getElementById('level');
-        const timerEl = document.getElementById('timer');
-        const startBtn = document.getElementById('start-btn');
-        const keys = document.querySelectorAll('.key');
-        const achievementsEl = document.getElementById('achievements');
+        const elements = {
+            seqDisplay: document.getElementById('sequence'),
+            boss: document.getElementById('boss'),
+            scoreEl: document.getElementById('score'),
+            highScoreEl: document.getElementById('high-score'),
+            levelEl: document.getElementById('level'),
+            timerEl: document.getElementById('timer'),
+            toggleBtn: document.getElementById('toggle-btn'),
+            restartBtn: document.getElementById('restart-btn'),
+            modal: document.getElementById('modal'),
+            finalScoreEl: document.getElementById('final-score'),
+            keys: document.querySelectorAll('.key')
+        };
 
-        let sequence = [];
-        let playerSeq = [];
-        let score = 0;
-        let level = 0;
-        let bossHealth = 0;
-        let playing = false;
-        let seqElements = [];
-        let isSpecial = false;
-        let timer = 0;
-        let timerInterval = null;
-        let streak = 0;
-        let highestLevel = 0;
-        let specialDefeated = 0;
+        let state = {
+            sequence: [],
+            playerSeq: [],
+            score: 0,
+            highScore: localStorage.getItem('abysm_highscore') || 0,
+            level: 0,
+            bossHealth: 0,
+            playing: false,
+            paused: false,
+            seqElements: [],
+            isSpecial: false,
+            timer: 0,
+            timerInterval: null,
+            streak: 0,
+            levelStartTime: 0
+        };
 
-        const specialBosses = [5, 10, 15, 25, 35, 50];
+        const config = {
+            specialBosses: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+            maxLevel: 50
+        };
 
-        const achievements = [
-            { id: 'first', name: 'First Blood', desc: 'Defeat level 1', unlocked: false },
-            { id: 'streak5', name: 'On Fire', desc: '5 perfect inputs in a row', unlocked: false },
-            { id: 'level10', name: 'Abyssal Warrior', desc: 'Reach level 10', unlocked: false },
-            { id: 'special1', name: 'Elite Slayer', desc: 'Defeat a special boss', unlocked: false },
-            { id: 'perfect', name: 'Flawless', desc: 'Complete a boss without mistakes', unlocked: false },
-            { id: 'speed', name: 'Lightning Fast', desc: 'Defeat boss in under 5s', unlocked: false }
-        ];
+        function loadHighScore() {
+            elements.highScoreEl.textContent = `HIGH: ${state.highScore}`;
+        }
 
-        function loadAchievements() {
-            const saved = localStorage.getItem('abysm_achievements');
-            if (saved) {
-                const unlocked = JSON.parse(saved);
-                achievements.forEach(a => {
-                    if (unlocked.includes(a.id)) a.unlocked = true;
-                });
+        function saveHighScore() {
+            if (state.score > state.highScore) {
+                state.highScore = state.score;
+                localStorage.setItem('abysm_highscore', state.highScore);
+                elements.highScoreEl.textContent = `HIGH: ${state.highScore}`;
             }
         }
 
-        function saveAchievements() {
-            const unlocked = achievements.filter(a => a.unlocked).map(a => a.id);
-            localStorage.setItem('abysm_achievements', JSON.stringify(unlocked));
-        }
-
-        function unlockAchievement(id) {
-            const ach = achievements.find(a => a.id === id);
-            if (ach && !ach.unlocked) {
-                ach.unlocked = true;
-                showAchievement(ach);
-                saveAchievements();
-            }
-        }
-
-        function showAchievement(ach) {
-            achievementsEl.textContent = `ACHIEVEMENT: ${ach.name} - ${ach.desc}`;
-            achievementsEl.classList.add('show');
-            setTimeout(() => achievementsEl.classList.remove('show'), 3000);
-        }
-
-        function start() {
-            score = 0;
-            level = 0;
-            streak = 0;
-            scoreEl.textContent = 'SCORE: 0';
-            levelEl.textContent = 'LEVEL 1';
-            timerEl.textContent = '';
-            boss.className = '';
-            seqDisplay.innerHTML = '';
-            playing = true;
-            loadAchievements();
+        function initGame() {
+            state.score = 0;
+            state.level = 0;
+            state.streak = 0;
+            elements.scoreEl.textContent = 'SCORE: 0';
+            elements.levelEl.textContent = 'LEVEL 1';
+            elements.timerEl.textContent = '';
+            elements.boss.className = '';
+            elements.seqDisplay.innerHTML = '';
+            state.playing = true;
+            state.paused = false;
+            elements.toggleBtn.textContent = 'STOP';
+            elements.modal.style.display = 'none';
+            loadHighScore();
             nextLevel();
         }
 
-        function nextLevel() {
-            level++;
-            if (level > highestLevel) {
-                highestLevel = level;
-                if (level === 10) unlockAchievement('level10');
+        function toggleGame() {
+            if (!state.playing) {
+                initGame();
+            } else {
+                state.paused = !state.paused;
+                elements.toggleBtn.textContent = state.paused ? 'RESUME' : 'STOP';
+                if (state.paused) {
+                    clearInterval(state.timerInterval);
+                } else {
+                    startTimer();
+                }
             }
-            levelEl.textContent = `LEVEL ${level}`;
-            isSpecial = specialBosses.includes(level);
-            if (isSpecial) boss.classList.add('special');
-            bossHealth = isSpecial ? level * 8 : level * 5;
-            const len = Math.min(5 + Math.floor(level / 2), 20);
-            sequence = generateSequence(len);
-            playerSeq = [];
+        }
+
+        function nextLevel() {
+            if (state.paused) return;
+            state.level++;
+            elements.levelEl.textContent = `LEVEL ${state.level}`;
+            state.isSpecial = config.specialBosses.includes(state.level);
+            if (state.isSpecial) elements.boss.classList.add('special');
+            state.bossHealth = state.isSpecial ? state.level * 12 : state.level * 7;
+            const len = Math.min(4 + Math.floor(state.level / 3), 30);
+            state.sequence = generateSequence(len);
+            state.playerSeq = [];
             displaySequence();
             updateBoss();
+            state.levelStartTime = performance.now();
             startTimer();
-            if (level === 1) unlockAchievement('first');
         }
 
         function generateSequence(len) {
             const seq = [];
-            for (let i = 0; i < len; i++) {
-                seq.push(Math.floor(Math.random() * 3) + 1);
-            }
+            for (let i = 0; i < len; i++) seq.push(Math.floor(Math.random() * 3) + 1);
             return seq;
         }
 
         function displaySequence() {
-            seqDisplay.innerHTML = '';
-            seqElements = [];
-            sequence.forEach((num, i) => {
+            elements.seqDisplay.innerHTML = '';
+            state.seqElements = [];
+            state.sequence.forEach((num, i) => {
                 const span = document.createElement('span');
                 span.textContent = num;
                 span.className = 'seq-digit';
-                seqDisplay.appendChild(span);
-                seqElements.push(span);
-                setTimeout(() => span.classList.add('show'), i * 60);
+                elements.seqDisplay.appendChild(span);
+                state.seqElements.push(span);
+                setTimeout(() => span.classList.add('show'), i * 40);
             });
         }
 
         function startTimer() {
-            clearInterval(timerInterval);
-            const baseTime = 20;
-            const timePerDigit = 1.2;
-            timer = Math.max(baseTime - level * 0.5, 8) + sequence.length * timePerDigit;
-            if (isSpecial) timer *= 1.3;
+            clearInterval(state.timerInterval);
+            const baseTime = 14 - Math.floor(state.level / 8);
+            const timePerDigit = 0.7 + (state.level / 40);
+            state.timer = Math.max(baseTime, 5) + state.sequence.length * timePerDigit;
+            if (state.isSpecial) state.timer *= 1.15;
             updateTimerDisplay();
-            const startTime = Date.now();
-            timerInterval = setInterval(() => {
-                timer -= 0.1;
+            state.timerInterval = setInterval(() => {
+                state.timer -= 0.1;
                 updateTimerDisplay();
-                if (timer <= 0) {
-                    gameOver();
-                }
+                if (state.timer <= 0) gameOver();
             }, 100);
-            return startTime;
         }
 
         function updateTimerDisplay() {
-            const secs = Math.max(0, Math.ceil(timer));
-            timerEl.textContent = `TIME: ${secs}s`;
-            if (secs <= 5) {
-                timerEl.style.color = 'var(--timer-danger)';
-            } else if (secs <= 10) {
-                timerEl.style.color = 'var(--timer-warn)';
-            } else {
-                timerEl.style.color = 'var(--fg)';
-            }
+            const secs = Math.max(0, Math.ceil(state.timer));
+            elements.timerEl.textContent = `TIME: ${secs}`;
+            if (secs <= 5) elements.timerEl.style.color = 'var(--timer-danger)';
+            else if (secs <= 10) elements.timerEl.style.color = 'var(--timer-warn)';
+            else elements.timerEl.style.color = 'var(--fg)';
         }
 
         function press(num) {
-            if (!playing) return;
-            playerSeq.push(num);
-            streak++;
-            if (streak === 5) unlockAchievement('streak5');
+            if (!state.playing || state.paused) return;
+            state.playerSeq.push(num);
+            if (state.playerSeq[state.playerSeq.length - 1] !== state.sequence[state.playerSeq.length - 1]) {
+                gameOver();
+                return;
+            }
+            state.streak++;
             triggerKeyPress(num);
             highlightCurrent();
-            checkProgress();
+            if (state.playerSeq.length === state.sequence.length) hitBoss();
         }
 
         function highlightCurrent() {
-            const idx = playerSeq.length - 1;
-            if (seqElements[idx]) {
-                seqElements[idx].classList.add('active');
-                setTimeout(() => seqElements[idx].classList.remove('active'), 200);
+            const idx = state.playerSeq.length - 1;
+            if (state.seqElements[idx]) {
+                state.seqElements[idx].classList.add('active');
+                setTimeout(() => state.seqElements[idx].classList.remove('active'), 200);
             }
+            state.seqElements.forEach((el, i) => {
+                if (i < state.playerSeq.length) el.classList.add('done');
+                else el.classList.remove('done');
+            });
         }
 
         function triggerKeyPress(num) {
@@ -443,117 +454,94 @@
                 key.classList.add('pressed');
                 setTimeout(() => key.classList.remove('pressed'), 150);
             }
-            createParticles(key || boss, false);
+            createParticles(key || elements.boss, false);
         }
 
         function createParticles(el, special = false) {
             const rect = el.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
-            const count = special ? 15 : 6;
+            const count = special ? 12 : 6;
             const colorClass = special ? 'special' : '';
             for (let i = 0; i < count; i++) {
                 const p = document.createElement('div');
                 p.className = `particle ${colorClass}`;
-                const angle = (i * 360 / count) * Math.PI / 180 + Math.random() * 0.5;
-                const dist = 25 + Math.random() * 30;
+                const angle = (i * 360 / count) * Math.PI / 180;
+                const dist = 20 + Math.random() * 20;
                 p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
                 p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
                 p.style.left = `${centerX}px`;
                 p.style.top = `${centerY}px`;
                 document.body.appendChild(p);
-                setTimeout(() => p.remove(), 700);
-            }
-        }
-
-        function checkProgress() {
-            const idx = playerSeq.length - 1;
-            if (playerSeq[idx] !== sequence[idx]) {
-                streak = 0;
-                gameOver();
-                return;
-            }
-            if (playerSeq.length === sequence.length) {
-                hitBoss();
+                setTimeout(() => p.remove(), 600);
             }
         }
 
         function hitBoss() {
-            const levelStartTime = performance.now();
-            bossHealth -= sequence.length;
-            boss.classList.add('hit');
-            setTimeout(() => boss.classList.remove('hit'), 350);
-            createParticles(boss, isSpecial);
+            state.bossHealth -= Math.floor(state.sequence.length * (1 + state.streak / 10));
+            elements.boss.classList.add('hit');
+            setTimeout(() => elements.boss.classList.remove('hit'), 350);
+            createParticles(elements.boss, state.isSpecial);
             updateBoss();
-            if (bossHealth <= 0) {
-                clearInterval(timerInterval);
-                const elapsed = (performance.now() - levelStartTime) / 1000;
-                if (elapsed < 5) unlockAchievement('speed');
-                if (playerSeq.length === sequence.length && streak >= sequence.length) {
-                    unlockAchievement('perfect');
-                }
-                const points = isSpecial ? level * 25 : level * 10;
-                score += points;
-                scoreEl.textContent = `SCORE: ${score}`;
-                if (isSpecial) {
-                    specialDefeated++;
-                    unlockAchievement('special1');
-                }
+            if (state.bossHealth <= 0) {
+                clearInterval(state.timerInterval);
+                const points = state.isSpecial ? state.level * 35 : state.level * 20;
+                state.score += points;
+                elements.scoreEl.textContent = `SCORE: ${state.score}`;
+                saveHighScore();
                 setTimeout(() => {
-                    boss.classList.add('dead');
+                    elements.boss.classList.add('dead');
                     setTimeout(() => {
-                        boss.classList.remove('special', 'dead');
-                        nextLevel();
+                        elements.boss.classList.remove('special', 'dead', 'hit');
+                        elements.boss.style.transform = 'scale(1)';
+                        elements.boss.style.opacity = '1';
+                        if (state.level >= config.maxLevel) gameWin();
+                        else nextLevel();
                     }, 600);
                 }, 350);
             } else {
-                playerSeq = [];
+                state.playerSeq = [];
                 displaySequence();
             }
         }
 
         function updateBoss() {
-            const maxHealth = isSpecial ? level * 8 : level * 5;
-            const scale = bossHealth > 0 ? bossHealth / maxHealth : 0;
-            boss.style.transform = `scale(${scale})`;
+            const maxHealth = state.isSpecial ? state.level * 12 : state.level * 7;
+            const scale = state.bossHealth > 0 ? state.bossHealth / maxHealth : 0;
+            elements.boss.style.transform = `scale(${scale})`;
         }
 
         function gameOver() {
-            playing = false;
-            streak = 0;
-            clearInterval(timerInterval);
-            createParticles(boss, false);
-            setTimeout(() => {
-                alert(`TIME'S UP!\nSCORE: ${score}`);
-                boss.className = '';
-                start();
-            }, 300);
+            state.playing = false;
+            state.paused = false;
+            clearInterval(state.timerInterval);
+            createParticles(elements.boss, false);
+            elements.finalScoreEl.textContent = `SCORE: ${state.score}`;
+            elements.modal.style.display = 'flex';
+            elements.toggleBtn.textContent = 'START';
         }
 
-        keys.forEach(key => {
-            key.addEventListener('touchstart', e => {
-                e.preventDefault();
-                press(parseInt(key.dataset.key));
-            });
-            key.addEventListener('mousedown', e => {
-                e.preventDefault();
-                press(parseInt(key.dataset.key));
-            });
+        function gameWin() {
+            elements.finalScoreEl.textContent = `WIN! SCORE: ${state.score}`;
+            elements.modal.style.display = 'flex';
+            elements.toggleBtn.textContent = 'START';
+        }
+
+        elements.keys.forEach(key => {
+            key.addEventListener('touchstart', e => { e.preventDefault(); press(parseInt(key.dataset.key)); });
+            key.addEventListener('mousedown', e => { e.preventDefault(); press(parseInt(key.dataset.key)); });
         });
 
         document.addEventListener('keydown', e => {
-            if (!playing) return;
+            if (!state.playing || state.paused) return;
             const k = e.key;
-            if (k === '1' || k === '2' || k === '3') {
-                e.preventDefault();
-                press(parseInt(k));
-            }
+            if (['1', '2', '3'].includes(k)) { e.preventDefault(); press(parseInt(k)); }
         });
 
-        startBtn.addEventListener('click', start);
+        elements.toggleBtn.addEventListener('click', toggleGame);
+        elements.restartBtn.addEventListener('click', initGame);
 
-        // Init
-        loadAchievements();
+        loadHighScore();
     </script>
 </body>
 </html>
